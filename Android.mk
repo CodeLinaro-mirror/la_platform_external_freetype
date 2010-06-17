@@ -13,7 +13,7 @@ include $(CLEAR_VARS)
 #
 LOCAL_ARM_MODE := arm
 
-LOCAL_SRC_FILES:= \
+common_SRC_FILES:= \
 	src/base/ftbbox.c \
 	src/base/ftbitmap.c \
 	src/base/ftglyph.c \
@@ -32,14 +32,15 @@ LOCAL_SRC_FILES:= \
 	src/psnames/psnames.c \
 	src/pshinter/pshinter.c
 
-LOCAL_C_INCLUDES += \
+common_C_INCLUDES += \
 	$(LOCAL_PATH)/builds \
 	$(LOCAL_PATH)/include
 
-LOCAL_CFLAGS += -W -Wall
-LOCAL_CFLAGS += -fPIC -DPIC
-LOCAL_CFLAGS += "-DDARWIN_NO_CARBON"
-LOCAL_CFLAGS += "-DFT2_BUILD_LIBRARY"
+common_CFLAGS += -W -Wall
+common_CFLAGS += -fPIC -DPIC
+common_CFLAGS += "-DDARWIN_NO_CARBON"
+common_CFLAGS += "-DFT2_BUILD_LIBRARY"
+common_CFLAGS += -O2
 
 # enable the FreeType internal memory debugger in the simulator
 # you need to define the FT2_DEBUG_MEMORY environment variable
@@ -54,9 +55,51 @@ endif
 # of the product
 #LOCAL_CFLAGS += "-DTT_CONFIG_OPTION_BYTECODE_INTERPRETER"
 
-LOCAL_CFLAGS += -O2
+LOCAL_SRC_FILES := $(common_SRC_FILES)
+
+LOCAL_C_INCLUDES += $(common_C_INCLUDES)
+
+LOCAL_CFLAGS += $(common_CFLAGS)
 
 LOCAL_MODULE:= libft2
 
 include $(BUILD_STATIC_LIBRARY)
+
+
+
+# FT as shared library
+# =====================================================
+
+include $(CLEAR_VARS)
+
+# compile in ARM mode, since the glyph loader/renderer is a hotspot
+# when loading complex pages in the browser
+#
+LOCAL_ARM_MODE := arm
+
+LOCAL_SRC_FILES := $(common_SRC_FILES)
+
+LOCAL_C_INCLUDES += $(common_C_INCLUDES)
+
+LOCAL_CFLAGS += $(common_CFLAGS)
+
+# enable the FreeType internal memory debugger in the simulator
+# you need to define the FT2_DEBUG_MEMORY environment variable
+# when running the program to activate it. It will dump memory
+# statistics when FT_Done_FreeType is called
+#
+ifeq ($(TARGET_SIMULATOR),true)
+LOCAL_CFLAGS += "-DFT_DEBUG_MEMORY"
+endif
+
+# the following is for testing only, and should not be used in final builds
+# of the product
+#LOCAL_CFLAGS += "-DTT_CONFIG_OPTION_BYTECODE_INTERPRETER"
+
+LOCAL_MODULE:= libft2
+
+LOCAL_PRELINK_MODULE := false
+
+include $(BUILD_SHARED_LIBRARY)
+
 endif
