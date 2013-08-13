@@ -572,7 +572,6 @@
         }
 #endif
 
-
       /* Check the scalable flag based on `loca'. */
       if ( !ttface->internal->incremental_interface &&
            ttface->num_fixed_sizes                  &&
@@ -605,7 +604,6 @@
                 tt_face_load_gdef( face, stream );
         }
 #endif
-
 
       /* Check the scalable flag based on `loca'. */
       if ( ttface->num_fixed_sizes          &&
