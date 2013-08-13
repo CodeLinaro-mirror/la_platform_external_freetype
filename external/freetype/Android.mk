@@ -33,15 +33,16 @@ LOCAL_SRC_FILES:= \
 	src/truetype/truetype.c \
 	src/cff/cff.c \
 	src/psnames/psnames.c \
-	src/pshinter/pshinter.c 
+	src/pshinter/pshinter.c
+
 
 LOCAL_C_INCLUDES += \
 	$(LOCAL_PATH)/builds \
-	$(LOCAL_PATH)/include 
+	$(LOCAL_PATH)/include
 
 ifeq ($(MULTI_LANG_ENGINE),REVERIE)
 LOCAL_C_INCLUDES += \
-	vendor/qcom/proprietary/qrdplus/globalization/engine
+	vendor/qcom/proprietary/qrdplus/globalization/engine/
 endif
 
 LOCAL_CFLAGS += -W -Wall
