@@ -25,15 +25,13 @@
 #include FT_TRUETYPE_TABLES_H
 #include FT_INTERNAL_OBJECTS_H
 
-#ifdef REVERIE
-#include "revtables.h"
-#endif
-
-
 #ifdef TT_CONFIG_OPTION_GX_VAR_SUPPORT
 #include FT_MULTIPLE_MASTERS_H
 #endif
 
+#ifdef REVERIE
+#include "revtables.h"
+#endif
 
 FT_BEGIN_HEADER
 
@@ -1433,7 +1431,8 @@ FT_BEGIN_HEADER
     FT_ULong              horz_metrics_offset;
     FT_ULong              vert_metrics_offset;
 
- #ifdef REVERIE
+#ifdef REVERIE
+    //reverie add       
     FT_Byte*              gdef_table;   /* extracted `gdef' table */
     FT_ULong              gdef_size;
     TT_GDEF               Gdef;
@@ -1446,7 +1445,6 @@ FT_BEGIN_HEADER
     FT_ULong              gpos_size;
     TT_GPOS               Gpos;
   #endif
-
 
   } TT_FaceRec;
 
