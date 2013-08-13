@@ -3936,6 +3936,7 @@ FT_BEGIN_HEADER
 
   /* */
 
+
 #ifdef REVERIE  
 FT_EXPORT( FT_UInt16 *)
   FT_Get_Chars_Indices( FT_Face   face,
@@ -3948,7 +3949,6 @@ FT_EXPORT( FT_Int )
 FT_Get_Position(FT_Face face,FT_UInt16 baseId,FT_UInt16 markId,int *x,int *y,int flag);
 
 #endif
-
 
 
 FT_END_HEADER
