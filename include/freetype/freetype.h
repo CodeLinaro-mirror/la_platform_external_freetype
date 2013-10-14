@@ -3937,6 +3937,20 @@ FT_BEGIN_HEADER
   /* */
 
 
+#ifdef REVERIE
+FT_EXPORT( FT_UInt16 *)
+  FT_Get_Chars_Indices( FT_Face   face,
+                     FT_UInt32  *charcode,int index,FT_UInt32 noofcharcodes, FT_UInt32 *no_of_glyphs);
+
+FT_EXPORT( FT_Int32)
+  FT_Get_Class( FT_Face   face,FT_UInt16  Gid );
+
+FT_EXPORT( FT_Int )
+FT_Get_Position(FT_Face face,FT_UInt16 baseId,FT_UInt16 markId,int *x,int *y,int flag);
+
+#endif
+
+
 FT_END_HEADER
 
 #endif /* __FREETYPE_H__ */
