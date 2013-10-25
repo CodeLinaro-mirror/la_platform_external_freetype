@@ -35,14 +35,24 @@ LOCAL_SRC_FILES:= \
 	src/psnames/psnames.c \
 	src/pshinter/pshinter.c
 
+
 LOCAL_C_INCLUDES += \
 	$(LOCAL_PATH)/builds \
 	$(LOCAL_PATH)/include
+
+ifeq ($(MULTI_LANG_ENGINE),REVERIE)
+LOCAL_C_INCLUDES += \
+	$(PRODUCT_RENDERING_ENGINE_PATH)/
+endif
 
 LOCAL_CFLAGS += -W -Wall
 LOCAL_CFLAGS += -fPIC -DPIC
 LOCAL_CFLAGS += "-DDARWIN_NO_CARBON"
 LOCAL_CFLAGS += "-DFT2_BUILD_LIBRARY"
+
+ifeq ($(MULTI_LANG_ENGINE),REVERIE)
+LOCAL_CFLAGS += "-DREVERIE"
+endif
 
 # the following is for testing only, and should not be used in final builds
 # of the product
