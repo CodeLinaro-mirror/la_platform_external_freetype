@@ -33,15 +33,17 @@ LOCAL_SRC_FILES:= \
 	src/truetype/truetype.c \
 	src/cff/cff.c \
 	src/psnames/psnames.c \
-	src/pshinter/pshinter.c 
+	src/pshinter/pshinter.c
 
 LOCAL_C_INCLUDES += \
 	$(LOCAL_PATH)/builds \
-	$(LOCAL_PATH)/include 
+	$(LOCAL_PATH)/include \
+	external/libpng \
+	external/zlib
 
 ifeq ($(MULTI_LANG_ENGINE),REVERIE)
 LOCAL_C_INCLUDES += \
-	vendor/qcom/proprietary/qrdplus/globalization/engine
+        vendor/qcom/proprietary/qrdplus/globalization/engine/
 endif
 
 LOCAL_CFLAGS += -W -Wall
@@ -51,7 +53,10 @@ LOCAL_CFLAGS += "-DFT2_BUILD_LIBRARY"
 
 ifeq ($(MULTI_LANG_ENGINE),REVERIE)
 LOCAL_CFLAGS += "-DREVERIE"
+LOCAL_LDFLAGS += vendor/qcom/proprietary/qrdplus/globalization/engine/revload.a
 endif
+
+LOCAL_SHARED_LIBRARIES += libpng libz liblog
 
 # the following is for testing only, and should not be used in final builds
 # of the product
@@ -61,5 +66,5 @@ LOCAL_CFLAGS += -O2
 
 LOCAL_MODULE:= libft2
 
-include $(BUILD_STATIC_LIBRARY)
+include $(BUILD_SHARED_LIBRARY)
 endif
