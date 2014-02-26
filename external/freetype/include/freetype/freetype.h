@@ -3993,7 +3993,7 @@ FT_BEGIN_HEADER
                                 FT_Bool  value );
 
 
-#ifdef REVERIE  
+#ifdef REVERIE
   FT_EXPORT( FT_UInt16 *)
   FT_Get_Chars_Indices( FT_Face   face,FT_UInt32  *charcode,int index,
   	FT_UInt32 noofcharcodes,FT_UInt32 *no_of_glyphs);
