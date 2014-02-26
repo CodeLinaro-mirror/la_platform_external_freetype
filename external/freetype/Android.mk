@@ -43,7 +43,7 @@ LOCAL_C_INCLUDES += \
 
 ifeq ($(MULTI_LANG_ENGINE),REVERIE)
 LOCAL_C_INCLUDES += \
-        vendor/qcom/proprietary/qrdplus/globalization/engine/
+        $(PRODUCT_RENDERING_ENGINE_PATH)
 endif
 
 LOCAL_CFLAGS += -W -Wall
@@ -53,7 +53,7 @@ LOCAL_CFLAGS += "-DFT2_BUILD_LIBRARY"
 
 ifeq ($(MULTI_LANG_ENGINE),REVERIE)
 LOCAL_CFLAGS += "-DREVERIE"
-LOCAL_LDFLAGS += vendor/qcom/proprietary/qrdplus/globalization/engine/revload.a
+LOCAL_LDFLAGS += $(PRODUCT_RENDERING_ENGINE_REVLOAD)
 endif
 
 LOCAL_SHARED_LIBRARIES += libpng libz liblog
