@@ -584,7 +584,7 @@
       if ( !error )
         error = tt_face_load_prep( face, stream );
 
-#ifdef REVERIE  
+#ifdef REVERIE
         if ( !error ){
                 tt_face_load_gpos( face, stream );
                 tt_face_load_gsub( face, stream );
@@ -617,7 +617,7 @@
       if ( !error )
         error = tt_face_load_prep( face, stream );
 
-#ifdef REVERIE  
+#ifdef REVERIE
         if ( !error ){
                 tt_face_load_gpos( face, stream );
                 tt_face_load_gsub( face, stream );
