@@ -32,6 +32,10 @@
 #include "ttinterp.h"
 #endif
 
+#ifdef REVERIE
+#include "revload.h"
+#endif
+
 #ifdef TT_CONFIG_OPTION_UNPATENTED_HINTING
 #include FT_TRUETYPE_UNPATENTED_H
 #endif
@@ -580,6 +584,14 @@
       if ( !error )
         error = tt_face_load_prep( face, stream );
 
+#ifdef REVERIE
+        if ( !error ){
+                tt_face_load_gpos( face, stream );
+                tt_face_load_gsub( face, stream );
+                tt_face_load_gdef( face, stream );
+        }
+#endif
+
       /* Check the scalable flag based on `loca'. */
       if ( !ttface->internal->incremental_interface &&
            ttface->num_fixed_sizes                  &&
@@ -604,6 +616,14 @@
         error = tt_face_load_fpgm( face, stream );
       if ( !error )
         error = tt_face_load_prep( face, stream );
+
+#ifdef REVERIE
+        if ( !error ){
+                tt_face_load_gpos( face, stream );
+                tt_face_load_gsub( face, stream );
+                tt_face_load_gdef( face, stream );
+        }
+#endif
 
       /* Check the scalable flag based on `loca'. */
       if ( ttface->num_fixed_sizes          &&
