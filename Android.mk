@@ -41,12 +41,20 @@ LOCAL_C_INCLUDES += \
 	external/libpng \
 	external/zlib
 
+ifeq ($(MULTI_LANG_ENGINE),REVERIE)
+       LOCAL_STATIC_LIBRARIES += revload
+endif
+
 LOCAL_CFLAGS += -W -Wall
 LOCAL_CFLAGS += -fPIC -DPIC
 LOCAL_CFLAGS += "-DDARWIN_NO_CARBON"
 LOCAL_CFLAGS += "-DFT2_BUILD_LIBRARY"
 
-LOCAL_SHARED_LIBRARIES += libpng libz
+ifeq ($(MULTI_LANG_ENGINE),REVERIE)
+LOCAL_CFLAGS += "-DREVERIE"
+endif
+
+LOCAL_SHARED_LIBRARIES += libpng libz liblog
 
 # the following is for testing only, and should not be used in final builds
 # of the product
