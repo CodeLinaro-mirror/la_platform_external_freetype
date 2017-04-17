@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    The FreeType private functions used in base module (specification).  */
 /*                                                                         */
-/*  Copyright 2008-2016 by                                                 */
+/*  Copyright 2008-2015 by                                                 */
 /*  David Turner, Robert Wilhelm, Werner Lemberg, and suzuki toshiya.      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -16,8 +16,8 @@
 /***************************************************************************/
 
 
-#ifndef FTBASE_H_
-#define FTBASE_H_
+#ifndef __FTBASE_H__
+#define __FTBASE_H__
 
 
 #include <ft2build.h>
@@ -68,7 +68,7 @@ FT_BEGIN_HEADER
 
 FT_END_HEADER
 
-#endif /* FTBASE_H_ */
+#endif /* __FTBASE_H__ */
 
 
 /* END */

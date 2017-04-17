@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    Arithmetic computations (specification).                             */
 /*                                                                         */
-/*  Copyright 1996-2016 by                                                 */
+/*  Copyright 1996-2015 by                                                 */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -16,8 +16,8 @@
 /***************************************************************************/
 
 
-#ifndef FTCALC_H_
-#define FTCALC_H_
+#ifndef __FTCALC_H__
+#define __FTCALC_H__
 
 
 #include <ft2build.h>
@@ -412,7 +412,7 @@ FT_BEGIN_HEADER
 
 FT_END_HEADER
 
-#endif /* FTCALC_H_ */
+#endif /* __FTCALC_H__ */
 
 
 /* END */

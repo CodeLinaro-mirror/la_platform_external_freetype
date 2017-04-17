@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    OpenType Glyph Loader (specification).                               */
 /*                                                                         */
-/*  Copyright 1996-2016 by                                                 */
+/*  Copyright 1996-2015 by                                                 */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -16,8 +16,8 @@
 /***************************************************************************/
 
 
-#ifndef CFFGLOAD_H_
-#define CFFGLOAD_H_
+#ifndef __CFFGLOAD_H__
+#define __CFFGLOAD_H__
 
 
 #include <ft2build.h>
@@ -227,8 +227,7 @@ FT_BEGIN_HEADER
   FT_LOCAL( FT_Error )
   cff_decoder_parse_charstrings( CFF_Decoder*  decoder,
                                  FT_Byte*      charstring_base,
-                                 FT_ULong      charstring_len,
-                                 FT_Bool       in_dict );
+                                 FT_ULong      charstring_len );
 #endif
 
   FT_LOCAL( FT_Error )
@@ -240,7 +239,7 @@ FT_BEGIN_HEADER
 
 FT_END_HEADER
 
-#endif /* CFFGLOAD_H_ */
+#endif /* __CFFGLOAD_H__ */
 
 
 /* END */

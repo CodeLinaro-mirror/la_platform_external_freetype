@@ -5,7 +5,7 @@
 /*    Miscellaneous macros for stand-alone rasterizer (specification       */
 /*    only).                                                               */
 /*                                                                         */
-/*  Copyright 2005-2016 by                                                 */
+/*  Copyright 2005-2015 by                                                 */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used        */
@@ -24,8 +24,8 @@
   /*                                                 */
   /***************************************************/
 
-#ifndef FTMISC_H_
-#define FTMISC_H_
+#ifndef __FTMISC_H__
+#define __FTMISC_H__
 
 
   /* memset */
@@ -136,7 +136,7 @@
     return ( s > 0 ) ? d : -d;
   }
 
-#endif /* FTMISC_H_ */
+#endif /* __FTMISC_H__ */
 
 
 /* END */

@@ -293,8 +293,7 @@
     /* variable accumulates delta values from operand stack */
     CF2_Fixed  position = hintOffset;
 
-
-    if ( hasWidthArg && !*haveWidth )
+    if ( hasWidthArg && ! *haveWidth )
       *width = cf2_stack_getReal( opStack, 0 ) +
                  cf2_getNominalWidthX( font->decoder );
 
@@ -447,8 +446,6 @@
     CF2_Stack  opStack = NULL;
     FT_Byte    op1;                       /* first opcode byte */
 
-    CF2_F16Dot16  storage[CF2_STORAGE_SIZE];    /* for `put' and `get' */
-
     /* instruction limit; 20,000,000 matches Avalon */
     FT_UInt32  instructionLimit = 20000000UL;
 
@@ -468,8 +465,6 @@
     CF2_HintMaskRec   hintMask;
     CF2_GlyphPathRec  glyphPath;
 
-
-    FT_ZERO( &storage );
 
     /* initialize the remaining objects */
     cf2_arrstack_init( &subrStack,
@@ -613,7 +608,7 @@
                      0 );
 
         if ( font->decoder->width_only )
-          goto exit;
+            goto exit;
 
         break;
 
@@ -637,7 +632,7 @@
                      0 );
 
         if ( font->decoder->width_only )
-          goto exit;
+            goto exit;
 
         break;
 
@@ -651,7 +646,7 @@
         haveWidth = TRUE;
 
         if ( font->decoder->width_only )
-          goto exit;
+            goto exit;
 
         curY += cf2_stack_popFixed( opStack );
 
@@ -838,189 +833,84 @@
 
             break;
 
-          case cf2_escAND:
-            {
-              CF2_F16Dot16  arg1;
-              CF2_F16Dot16  arg2;
+          /* TODO: should these operators be supported? */
+          case cf2_escAND: /* in spec */
+            FT_TRACE4(( " and\n" ));
 
+            CF2_FIXME;
+            break;
 
-              FT_TRACE4(( " and\n" ));
+          case cf2_escOR: /* in spec */
+            FT_TRACE4(( " or\n" ));
 
-              arg2 = cf2_stack_popFixed( opStack );
-              arg1 = cf2_stack_popFixed( opStack );
+            CF2_FIXME;
+            break;
 
-              cf2_stack_pushInt( opStack, arg1 && arg2 );
-            }
-            continue; /* do not clear the stack */
+          case cf2_escNOT: /* in spec */
+            FT_TRACE4(( " not\n" ));
 
-          case cf2_escOR:
-            {
-              CF2_F16Dot16  arg1;
-              CF2_F16Dot16  arg2;
+            CF2_FIXME;
+            break;
 
+          case cf2_escABS: /* in spec */
+            FT_TRACE4(( " abs\n" ));
 
-              FT_TRACE4(( " or\n" ));
+            CF2_FIXME;
+            break;
 
-              arg2 = cf2_stack_popFixed( opStack );
-              arg1 = cf2_stack_popFixed( opStack );
+          case cf2_escADD: /* in spec */
+            FT_TRACE4(( " add\n" ));
 
-              cf2_stack_pushInt( opStack, arg1 || arg2 );
-            }
-            continue; /* do not clear the stack */
+            CF2_FIXME;
+            break;
 
-          case cf2_escNOT:
-            {
-              CF2_F16Dot16  arg;
+          case cf2_escSUB: /* in spec */
+            FT_TRACE4(( " sub\n" ));
 
+            CF2_FIXME;
+            break;
 
-              FT_TRACE4(( " not\n" ));
+          case cf2_escDIV: /* in spec */
+            FT_TRACE4(( " div\n" ));
 
-              arg = cf2_stack_popFixed( opStack );
+            CF2_FIXME;
+            break;
 
-              cf2_stack_pushInt( opStack, !arg );
-            }
-            continue; /* do not clear the stack */
+          case cf2_escNEG: /* in spec */
+            FT_TRACE4(( " neg\n" ));
 
-          case cf2_escABS:
-            {
-              CF2_F16Dot16  arg;
+            CF2_FIXME;
+            break;
 
+          case cf2_escEQ: /* in spec */
+            FT_TRACE4(( " eq\n" ));
 
-              FT_TRACE4(( " abs\n" ));
+            CF2_FIXME;
+            break;
 
-              arg = cf2_stack_popFixed( opStack );
-
-              cf2_stack_pushFixed( opStack, FT_ABS( arg ) );
-            }
-            continue; /* do not clear the stack */
-
-          case cf2_escADD:
-            {
-              CF2_F16Dot16  summand1;
-              CF2_F16Dot16  summand2;
-
-
-              FT_TRACE4(( " add\n" ));
-
-              summand2 = cf2_stack_popFixed( opStack );
-              summand1 = cf2_stack_popFixed( opStack );
-
-              cf2_stack_pushFixed( opStack, summand1 + summand2 );
-            }
-            continue; /* do not clear the stack */
-
-          case cf2_escSUB:
-            {
-              CF2_F16Dot16  minuend;
-              CF2_F16Dot16  subtrahend;
-
-
-              FT_TRACE4(( " sub\n" ));
-
-              subtrahend = cf2_stack_popFixed( opStack );
-              minuend    = cf2_stack_popFixed( opStack );
-
-              cf2_stack_pushFixed( opStack, minuend - subtrahend );
-            }
-            continue; /* do not clear the stack */
-
-          case cf2_escDIV:
-            {
-              CF2_F16Dot16  dividend;
-              CF2_F16Dot16  divisor;
-
-
-              FT_TRACE4(( " div\n" ));
-
-              divisor  = cf2_stack_popFixed( opStack );
-              dividend = cf2_stack_popFixed( opStack );
-
-              cf2_stack_pushFixed( opStack, FT_DivFix( dividend, divisor ) );
-            }
-            continue; /* do not clear the stack */
-
-          case cf2_escNEG:
-            {
-              CF2_F16Dot16  arg;
-
-
-              FT_TRACE4(( " neg\n" ));
-
-              arg = cf2_stack_popFixed( opStack );
-
-              cf2_stack_pushFixed( opStack, -arg );
-            }
-            continue; /* do not clear the stack */
-
-          case cf2_escEQ:
-            {
-              CF2_F16Dot16  arg1;
-              CF2_F16Dot16  arg2;
-
-
-              FT_TRACE4(( " eq\n" ));
-
-              arg2 = cf2_stack_popFixed( opStack );
-              arg1 = cf2_stack_popFixed( opStack );
-
-              cf2_stack_pushInt( opStack, arg1 == arg2 );
-            }
-            continue; /* do not clear the stack */
-
-          case cf2_escDROP:
+          case cf2_escDROP: /* in spec */
             FT_TRACE4(( " drop\n" ));
 
-            (void)cf2_stack_popFixed( opStack );
-            continue; /* do not clear the stack */
+            CF2_FIXME;
+            break;
 
-          case cf2_escPUT:
-            {
-              CF2_F16Dot16  val;
-              CF2_Int       idx;
+          case cf2_escPUT: /* in spec */
+            FT_TRACE4(( " put\n" ));
 
+            CF2_FIXME;
+            break;
 
-              FT_TRACE4(( " put\n" ));
+          case cf2_escGET: /* in spec */
+            FT_TRACE4(( " get\n" ));
 
-              idx = cf2_stack_popInt( opStack );
-              val = cf2_stack_popFixed( opStack );
+            CF2_FIXME;
+            break;
 
-              if ( idx >= 0 && idx < CF2_STORAGE_SIZE )
-                storage[idx] = val;
-            }
-            continue; /* do not clear the stack */
+          case cf2_escIFELSE: /* in spec */
+            FT_TRACE4(( " ifelse\n" ));
 
-          case cf2_escGET:
-            {
-              CF2_Int  idx;
-
-
-              FT_TRACE4(( " get\n" ));
-
-              idx = cf2_stack_popInt( opStack );
-
-              if ( idx >= 0 && idx < CF2_STORAGE_SIZE )
-                cf2_stack_pushFixed( opStack, storage[idx] );
-            }
-            continue; /* do not clear the stack */
-
-          case cf2_escIFELSE:
-            {
-              CF2_F16Dot16  arg1;
-              CF2_F16Dot16  arg2;
-              CF2_F16Dot16  cond1;
-              CF2_F16Dot16  cond2;
-
-
-              FT_TRACE4(( " ifelse\n" ));
-
-              cond2 = cf2_stack_popFixed( opStack );
-              cond1 = cf2_stack_popFixed( opStack );
-              arg2  = cf2_stack_popFixed( opStack );
-              arg1  = cf2_stack_popFixed( opStack );
-
-              cf2_stack_pushFixed( opStack, cond1 <= cond2 ? arg1 : arg2 );
-            }
-            continue; /* do not clear the stack */
+            CF2_FIXME;
+            break;
 
           case cf2_escRANDOM: /* in spec */
             FT_TRACE4(( " random\n" ));
@@ -1028,126 +918,41 @@
             CF2_FIXME;
             break;
 
-          case cf2_escMUL:
-            {
-              CF2_F16Dot16  factor1;
-              CF2_F16Dot16  factor2;
+          case cf2_escMUL: /* in spec */
+            FT_TRACE4(( " mul\n" ));
 
+            CF2_FIXME;
+            break;
 
-              FT_TRACE4(( " mul\n" ));
+          case cf2_escSQRT: /* in spec */
+            FT_TRACE4(( " sqrt\n" ));
 
-              factor2 = cf2_stack_popFixed( opStack );
-              factor1 = cf2_stack_popFixed( opStack );
+            CF2_FIXME;
+            break;
 
-              cf2_stack_pushFixed( opStack, FT_MulFix( factor1, factor2 ) );
-            }
-            continue; /* do not clear the stack */
+          case cf2_escDUP: /* in spec */
+            FT_TRACE4(( " dup\n" ));
 
-          case cf2_escSQRT:
-            {
-              CF2_F16Dot16  arg;
+            CF2_FIXME;
+            break;
 
+          case cf2_escEXCH: /* in spec */
+            FT_TRACE4(( " exch\n" ));
 
-              FT_TRACE4(( " sqrt\n" ));
+            CF2_FIXME;
+            break;
 
-              arg = cf2_stack_popFixed( opStack );
-              if ( arg > 0 )
-              {
-                FT_Fixed  root = arg;
-                FT_Fixed  new_root;
+          case cf2_escINDEX: /* in spec */
+            FT_TRACE4(( " index\n" ));
 
+            CF2_FIXME;
+            break;
 
-                /* Babylonian method */
-                for (;;)
-                {
-                  new_root = ( root + FT_DivFix( arg, root ) + 1 ) >> 1;
-                  if ( new_root == root )
-                    break;
-                  root = new_root;
-                }
-                arg = new_root;
-              }
-              else
-                arg = 0;
+          case cf2_escROLL: /* in spec */
+            FT_TRACE4(( " roll\n" ));
 
-              cf2_stack_pushFixed( opStack, arg );
-            }
-            continue; /* do not clear the stack */
-
-          case cf2_escDUP:
-            {
-              CF2_F16Dot16  arg;
-
-
-              FT_TRACE4(( " dup\n" ));
-
-              arg = cf2_stack_popFixed( opStack );
-
-              cf2_stack_pushFixed( opStack, arg );
-              cf2_stack_pushFixed( opStack, arg );
-            }
-            continue; /* do not clear the stack */
-
-          case cf2_escEXCH:
-            {
-              CF2_F16Dot16  arg1;
-              CF2_F16Dot16  arg2;
-
-
-              FT_TRACE4(( " exch\n" ));
-
-              arg2 = cf2_stack_popFixed( opStack );
-              arg1 = cf2_stack_popFixed( opStack );
-
-              cf2_stack_pushFixed( opStack, arg2 );
-              cf2_stack_pushFixed( opStack, arg1 );
-            }
-            continue; /* do not clear the stack */
-
-          case cf2_escINDEX:
-            {
-              CF2_Int   idx;
-              CF2_UInt  size;
-
-
-              FT_TRACE4(( " index\n" ));
-
-              idx  = cf2_stack_popInt( opStack );
-              size = cf2_stack_count( opStack );
-
-              if ( size > 0 )
-              {
-                /* for `cf2_stack_getReal', index 0 is bottom of stack */
-                CF2_UInt  gr_idx;
-
-
-                if ( idx < 0 )
-                  gr_idx = size - 1;
-                else if ( (CF2_UInt)idx >= size )
-                  gr_idx = 0;
-                else
-                  gr_idx = size - 1 - (CF2_UInt)idx;
-
-                cf2_stack_pushFixed( opStack,
-                                     cf2_stack_getReal( opStack, gr_idx ) );
-              }
-            }
-            continue; /* do not clear the stack */
-
-          case cf2_escROLL:
-            {
-              CF2_Int  idx;
-              CF2_Int  count;
-
-
-              FT_TRACE4(( " roll\n" ));
-
-              idx   = cf2_stack_popInt( opStack );
-              count = cf2_stack_popInt( opStack );
-
-              cf2_stack_roll( opStack, count, idx );
-            }
-            continue; /* do not clear the stack */
+            CF2_FIXME;
+            break;
 
           case cf2_escHFLEX:
             {
@@ -1280,7 +1085,7 @@
         haveWidth = TRUE;
 
         if ( font->decoder->width_only )
-          goto exit;
+            goto exit;
 
         /* close path if still open */
         cf2_glyphpath_closeOpenPath( &glyphPath );
@@ -1312,8 +1117,8 @@
           error2 = cf2_getSeacComponent( decoder, achar, &component );
           if ( error2 )
           {
-            lastError = error2;      /* pass FreeType error through */
-            goto exit;
+             lastError = error2;      /* pass FreeType error through */
+             goto exit;
           }
           cf2_interpT2CharString( font,
                                   &component,
@@ -1367,7 +1172,7 @@
                      0 );
 
         if ( font->decoder->width_only )
-          goto exit;
+            goto exit;
 
         if ( op1 == cf2_cmdHINTMASK )
         {
@@ -1426,7 +1231,7 @@
         haveWidth = TRUE;
 
         if ( font->decoder->width_only )
-          goto exit;
+            goto exit;
 
         curY += cf2_stack_popFixed( opStack );
         curX += cf2_stack_popFixed( opStack );
@@ -1445,7 +1250,7 @@
         haveWidth = TRUE;
 
         if ( font->decoder->width_only )
-          goto exit;
+            goto exit;
 
         curX += cf2_stack_popFixed( opStack );
 
@@ -1658,12 +1463,9 @@
         {
           CF2_Int  v;
 
-          CF2_Int  byte1 = cf2_buf_readByte( charstring );
-          CF2_Int  byte2 = cf2_buf_readByte( charstring );
 
-
-          v = (FT_Short)( ( byte1 << 8 ) |
-                            byte2        );
+          v = (FT_Short)( ( cf2_buf_readByte( charstring ) << 8 ) |
+                            cf2_buf_readByte( charstring )        );
 
           FT_TRACE4(( " %d", v ));
 
@@ -1725,16 +1527,12 @@
           {
             CF2_Fixed  v;
 
-            FT_UInt32  byte1 = (FT_UInt32)cf2_buf_readByte( charstring );
-            FT_UInt32  byte2 = (FT_UInt32)cf2_buf_readByte( charstring );
-            FT_UInt32  byte3 = (FT_UInt32)cf2_buf_readByte( charstring );
-            FT_UInt32  byte4 = (FT_UInt32)cf2_buf_readByte( charstring );
 
-
-            v = (CF2_Fixed)( ( byte1 << 24 ) |
-                             ( byte2 << 16 ) |
-                             ( byte3 <<  8 ) |
-                               byte4         );
+            v = (CF2_Fixed)
+                  ( ( (FT_UInt32)cf2_buf_readByte( charstring ) << 24 ) |
+                    ( (FT_UInt32)cf2_buf_readByte( charstring ) << 16 ) |
+                    ( (FT_UInt32)cf2_buf_readByte( charstring ) <<  8 ) |
+                      (FT_UInt32)cf2_buf_readByte( charstring )         );
 
             FT_TRACE4(( " %.2f", v / 65536.0 ));
 

@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    ANSI-specific configuration file (specification only).               */
 /*                                                                         */
-/*  Copyright 1996-2016 by                                                 */
+/*  Copyright 1996-2015 by                                                 */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -35,8 +35,8 @@
   /*                                                                       */
   /*************************************************************************/
 
-#ifndef FTCONFIG_H_
-#define FTCONFIG_H_
+#ifndef __FTCONFIG_H__
+#define __FTCONFIG_H__
 
 #include <ft2build.h>
 #include FT_CONFIG_OPTIONS_H
@@ -275,13 +275,7 @@ FT_BEGIN_HEADER
   /*                                                                       */
 #elif !defined( __STDC__ ) || defined( FT_CONFIG_OPTION_FORCE_INT64 )
 
-#if defined( __STDC_VERSION__ ) && __STDC_VERSION__ >= 199901L
-
-#define FT_LONG64
-#define FT_INT64   long long int
-#define FT_UINT64  unsigned long long int
-
-#elif defined( _MSC_VER ) && _MSC_VER >= 900  /* Visual C++ (and Intel C++) */
+#if defined( _MSC_VER ) && _MSC_VER >= 900  /* Visual C++ (and Intel C++) */
 
   /* this compiler provides the __int64 type */
 #define FT_LONG64
@@ -315,7 +309,7 @@ FT_BEGIN_HEADER
 #define FT_INT64   long long int
 #define FT_UINT64  unsigned long long int
 
-#endif /* __STDC_VERSION__ >= 199901L */
+#endif /* _MSC_VER */
 
 #endif /* FT_SIZEOF_LONG == (64 / FT_CHAR_BIT) */
 
@@ -467,7 +461,7 @@ FT_BEGIN_HEADER
 FT_END_HEADER
 
 
-#endif /* FTCONFIG_H_ */
+#endif /* __FTCONFIG_H__ */
 
 
 /* END */

@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    TrueType and OpenType embedded bitmap support (body).                */
 /*                                                                         */
-/*  Copyright 2005-2016 by                                                 */
+/*  Copyright 2005-2015 by                                                 */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  Copyright 2013 by Google, Inc.                                         */
@@ -197,27 +197,6 @@
     if ( !error )
       FT_TRACE3(( "sbit_num_strikes: %u\n", face->sbit_num_strikes ));
 
-    face->ebdt_start = 0;
-    face->ebdt_size  = 0;
-
-    if ( face->sbit_table_type != TT_SBIT_TABLE_TYPE_NONE )
-    {
-      FT_ULong  ebdt_size;
-
-
-      error = face->goto_table( face, TTAG_CBDT, stream, &ebdt_size );
-      if ( error )
-        error = face->goto_table( face, TTAG_EBDT, stream, &ebdt_size );
-      if ( error )
-        error = face->goto_table( face, TTAG_bdat, stream, &ebdt_size );
-
-      if ( !error )
-      {
-        face->ebdt_start = FT_STREAM_POS();
-        face->ebdt_size  = ebdt_size;
-      }
-    }
-
     return FT_Err_Ok;
 
   Exit:
@@ -260,22 +239,8 @@
                                FT_ULong          strike_index,
                                FT_Size_Metrics*  metrics )
   {
-    /* we have to test for the existence of `sbit_strike_map'    */
-    /* because the function gets also used at the very beginning */
-    /* to construct `sbit_strike_map' itself                     */
-    if ( face->sbit_strike_map )
-    {
-      if ( strike_index >= (FT_ULong)face->root.num_fixed_sizes )
-        return FT_THROW( Invalid_Argument );
-
-      /* map to real index */
-      strike_index = face->sbit_strike_map[strike_index];
-    }
-    else
-    {
-      if ( strike_index >= (FT_ULong)face->sbit_num_strikes )
-        return FT_THROW( Invalid_Argument );
-    }
+    if ( strike_index >= (FT_ULong)face->sbit_num_strikes )
+      return FT_THROW( Invalid_Argument );
 
     switch ( (FT_UInt)face->sbit_table_type )
     {
@@ -319,8 +284,7 @@
             FT_TRACE2(( "tt_face_load_strike_metrics:"
                         " sanitizing invalid ascender and descender\n"
                         "                            "
-                        " values for strike %d (%dppem, %dppem)\n",
-                        strike_index,
+                        " values for strike (%d, %d)\n",
                         metrics->x_ppem, metrics->y_ppem ));
 
             /* sanitize buggy ascender and descender values */
@@ -359,16 +323,6 @@
                                           strike[18] + /* max_width      */
                                  (FT_Char)strike[23]   /* min_advance_SB */
                                                      ) * 64;
-
-        /* set the scale values (in 16.16 units) so advances */
-        /* from the hmtx and vmtx table are scaled correctly */
-        metrics->x_scale = FT_MulDiv( metrics->x_ppem,
-                                      64 * 0x10000,
-                                      face->header.Units_Per_EM );
-        metrics->y_scale = FT_MulDiv( metrics->y_ppem,
-                                      64 * 0x10000,
-                                      face->header.Units_Per_EM );
-
         return FT_Err_Ok;
       }
 
@@ -460,15 +414,17 @@
                         FT_ULong             strike_index,
                         TT_SBit_MetricsRec*  metrics )
   {
-    FT_Error   error  = FT_ERR( Table_Missing );
+    FT_Error   error;
     FT_Stream  stream = face->root.stream;
+    FT_ULong   ebdt_size;
 
 
-    strike_index = face->sbit_strike_map[strike_index];
-
-    if ( !face->ebdt_size )
-      goto Exit;
-    if ( FT_STREAM_SEEK( face->ebdt_start ) )
+    error = face->goto_table( face, TTAG_CBDT, stream, &ebdt_size );
+    if ( error )
+      error = face->goto_table( face, TTAG_EBDT, stream, &ebdt_size );
+    if ( error )
+      error = face->goto_table( face, TTAG_bdat, stream, &ebdt_size );
+    if ( error )
       goto Exit;
 
     decoder->face    = face;
@@ -479,8 +435,8 @@
     decoder->metrics_loaded   = 0;
     decoder->bitmap_allocated = 0;
 
-    decoder->ebdt_start = face->ebdt_start;
-    decoder->ebdt_size  = face->ebdt_size;
+    decoder->ebdt_start = FT_STREAM_POS();
+    decoder->ebdt_size  = ebdt_size;
 
     decoder->eblc_base  = face->sbit_table;
     decoder->eblc_limit = face->sbit_table + face->sbit_table_size;
@@ -898,7 +854,7 @@
         }
 
         *pwrite++ |= ( ( rval >> nbits ) & 0xFF ) &
-                     ( ~( 0xFFU << w ) << ( 8 - w - x_pos ) );
+                     ( ~( 0xFF << w ) << ( 8 - w - x_pos ) );
         rval     <<= 8;
 
         w = line_bits - w;
@@ -1426,8 +1382,6 @@
 
     FT_UNUSED( map );
 
-
-    strike_index = face->sbit_strike_map[strike_index];
 
     metrics->width  = 0;
     metrics->height = 0;

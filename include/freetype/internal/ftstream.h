@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    Stream handling (specification).                                     */
 /*                                                                         */
-/*  Copyright 1996-2016 by                                                 */
+/*  Copyright 1996-2015 by                                                 */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -16,8 +16,8 @@
 /***************************************************************************/
 
 
-#ifndef FTSTREAM_H_
-#define FTSTREAM_H_
+#ifndef __FTSTREAM_H__
+#define __FTSTREAM_H__
 
 
 #include <ft2build.h>
@@ -530,7 +530,7 @@ FT_BEGIN_HEADER
 
 FT_END_HEADER
 
-#endif /* FTSTREAM_H_ */
+#endif /* __FTSTREAM_H__ */
 
 
 /* END */

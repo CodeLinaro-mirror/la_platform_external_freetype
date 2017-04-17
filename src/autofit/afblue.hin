@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    Auto-fitter data for blue strings (specification).                   */
 /*                                                                         */
-/*  Copyright 2013-2016 by                                                 */
+/*  Copyright 2013-2015 by                                                 */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -16,8 +16,8 @@
 /***************************************************************************/
 
 
-#ifndef AFBLUE_H_
-#define AFBLUE_H_
+#ifndef __AFBLUE_H__
+#define __AFBLUE_H__
 
 
 FT_BEGIN_HEADER
@@ -140,7 +140,7 @@ FT_BEGIN_HEADER
 FT_END_HEADER
 
 
-#endif /* AFBLUE_H_ */
+#endif /* __AFBLUE_H__ */
 
 
 /* END */

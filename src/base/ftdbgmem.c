@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    Memory debugger (body).                                              */
 /*                                                                         */
-/*  Copyright 2001-2016 by                                                 */
+/*  Copyright 2001-2015 by                                                 */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -367,8 +367,7 @@
         {
           printf(
             "leaked memory block at address %p, size %8ld in (%s:%ld)\n",
-            (void*)node->address,
-            node->size,
+            node->address, node->size,
             FT_FILENAME( node->source->file_name ),
             node->source->line_no );
 
@@ -842,7 +841,7 @@
         p = getenv( "FT2_ALLOC_TOTAL_MAX" );
         if ( p != NULL )
         {
-          FT_Long  total_max = ft_strtol( p, NULL, 10 );
+          FT_Long   total_max = ft_atol( p );
 
 
           if ( total_max > 0 )
@@ -855,7 +854,7 @@
         p = getenv( "FT2_ALLOC_COUNT_MAX" );
         if ( p != NULL )
         {
-          FT_Long  total_count = ft_strtol( p, NULL, 10 );
+          FT_Long  total_count = ft_atol( p );
 
 
           if ( total_count > 0 )
@@ -868,7 +867,7 @@
         p = getenv( "FT2_KEEP_ALIVE" );
         if ( p != NULL )
         {
-          FT_Long  keep_alive = ft_strtol( p, NULL, 10 );
+          FT_Long  keep_alive = ft_atol( p );
 
 
           if ( keep_alive > 0 )

@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    SFNT object management (base).                                       */
 /*                                                                         */
-/*  Copyright 1996-2016 by                                                 */
+/*  Copyright 1996-2015 by                                                 */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -949,10 +949,6 @@
              instance_size * num_instances > fvar_len )
         num_instances = 0;
 
-      /* we don't support Multiple Master CFFs yet */
-      if ( !face->goto_table( face, TTAG_CFF, stream, 0 ) )
-        num_instances = 0;
-
       /* we support at most 2^15 - 1 instances */
       if ( num_instances >= ( 1U << 15 ) - 1 )
       {
@@ -977,7 +973,7 @@
 #endif
 
     face->root.num_faces  = face->ttc_header.count;
-    face->root.face_index = face_instance_index;
+    face->root.face_index = face_index;
 
     return error;
   }
@@ -1411,7 +1407,7 @@
        *  depths in the FT_Bitmap_Size record.  This is a design error.
        */
       {
-        FT_UInt  count;
+        FT_UInt  i, count;
 
 
         count = face->sbit_num_strikes;
@@ -1423,9 +1419,6 @@
           FT_Short         avgwidth = face->os2.xAvgCharWidth;
           FT_Size_Metrics  metrics;
 
-          FT_UInt*  sbit_strike_map = NULL;
-          FT_UInt   strike_idx, bsize_idx;
-
 
           if ( em_size == 0 || face->os2.version == 0xFFFFU )
           {
@@ -1433,50 +1426,31 @@
             em_size = 1;
           }
 
-          /* to avoid invalid strike data in the `available_sizes' field */
-          /* of `FT_Face', we map `available_sizes' indices to strike    */
-          /* indices                                                     */
-          if ( FT_NEW_ARRAY( root->available_sizes, count ) ||
-               FT_NEW_ARRAY( sbit_strike_map, count ) )
+          if ( FT_NEW_ARRAY( root->available_sizes, count ) )
             goto Exit;
 
-          bsize_idx = 0;
-          for ( strike_idx = 0; strike_idx < count; strike_idx++ )
+          for ( i = 0; i < count; i++ )
           {
-            FT_Bitmap_Size*  bsize = root->available_sizes + bsize_idx;
+            FT_Bitmap_Size*  bsize = root->available_sizes + i;
 
 
-            error = sfnt->load_strike_metrics( face, strike_idx, &metrics );
+            error = sfnt->load_strike_metrics( face, i, &metrics );
             if ( error )
-              continue;
+              goto Exit;
 
             bsize->height = (FT_Short)( metrics.height >> 6 );
-            bsize->width  = (FT_Short)(
-              ( avgwidth * metrics.x_ppem + em_size / 2 ) / em_size );
+            bsize->width = (FT_Short)(
+                ( avgwidth * metrics.x_ppem + em_size / 2 ) / em_size );
 
             bsize->x_ppem = metrics.x_ppem << 6;
             bsize->y_ppem = metrics.y_ppem << 6;
 
             /* assume 72dpi */
             bsize->size   = metrics.y_ppem << 6;
-
-            /* only use strikes with valid PPEM values */
-            if ( bsize->x_ppem && bsize->y_ppem )
-              sbit_strike_map[bsize_idx++] = strike_idx;
           }
 
-          /* reduce array size to the actually used elements */
-          (void)FT_RENEW_ARRAY( sbit_strike_map, count, bsize_idx );
-
-          /* from now on, all strike indices are mapped */
-          /* using `sbit_strike_map'                    */
-          if ( bsize_idx )
-          {
-            face->sbit_strike_map = sbit_strike_map;
-
-            root->face_flags     |= FT_FACE_FLAG_FIXED_SIZES;
-            root->num_fixed_sizes = (FT_Int)bsize_idx;
-          }
+          root->face_flags     |= FT_FACE_FLAG_FIXED_SIZES;
+          root->num_fixed_sizes = (FT_Int)count;
         }
       }
 
@@ -1670,7 +1644,6 @@
 
     /* freeing sbit size table */
     FT_FREE( face->root.available_sizes );
-    FT_FREE( face->sbit_strike_map );
     face->root.num_fixed_sizes = 0;
 
     FT_FREE( face->postscript_name );

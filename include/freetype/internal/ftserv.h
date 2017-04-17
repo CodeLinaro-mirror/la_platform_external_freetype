@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    The FreeType services (specification only).                          */
 /*                                                                         */
-/*  Copyright 2003-2016 by                                                 */
+/*  Copyright 2003-2015 by                                                 */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -28,8 +28,8 @@
   /*************************************************************************/
 
 
-#ifndef FTSERV_H_
-#define FTSERV_H_
+#ifndef __FTSERV_H__
+#define __FTSERV_H__
 
 
 FT_BEGIN_HEADER
@@ -757,7 +757,7 @@ FT_BEGIN_HEADER
 
 FT_END_HEADER
 
-#endif /* FTSERV_H_ */
+#endif /* __FTSERV_H__ */
 
 
 /* END */
