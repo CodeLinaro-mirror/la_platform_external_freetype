@@ -102,7 +102,7 @@ llndk_library {
 cc_library_static {
     name: "libft2.nodep",
     host_supported: true,
-
+    vendor_available: true,
     // compile in ARM mode, since the glyph loader/renderer is a hotspot
     // when loading complex pages in the browser
     arch: {
