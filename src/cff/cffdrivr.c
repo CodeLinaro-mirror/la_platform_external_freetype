@@ -940,7 +940,8 @@
                        FT_UInt   gindex,
                        FT_Int   *avalue )
   {
-    FT_Service_MetricsVariations  var = (FT_Service_MetricsVariations)face->var;
+    FT_Service_MetricsVariations
+      var = (FT_Service_MetricsVariations)face->tt_var;
 
 
     return var->hadvance_adjust( FT_FACE( face ), gindex, avalue );
@@ -950,7 +951,8 @@
   static void
   cff_metrics_adjust( CFF_Face  face )
   {
-    FT_Service_MetricsVariations  var = (FT_Service_MetricsVariations)face->var;
+    FT_Service_MetricsVariations
+      var = (FT_Service_MetricsVariations)face->tt_var;
 
 
     var->metrics_adjust( FT_FACE( face ) );
@@ -969,7 +971,8 @@
     (FT_BSB_Adjust_Func)     NULL,                   /* bsb_adjust      */
     (FT_VOrg_Adjust_Func)    NULL,                   /* vorg_adjust     */
 
-    (FT_Metrics_Adjust_Func) cff_metrics_adjust      /* metrics_adjust  */
+    (FT_Metrics_Adjust_Func) cff_metrics_adjust,     /* metrics_adjust  */
+    (FT_Size_Reset_Func)     NULL                    /* size_reset      */
   )
 #endif
 
