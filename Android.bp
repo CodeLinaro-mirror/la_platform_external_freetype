@@ -115,7 +115,6 @@ cc_defaults {
 cc_library {
     name: "libft2",
     defaults: ["libft2_defaults"],
-    vendor_available: true,
 
     cflags: [
         // Usually these are defined in include/freetype/config/ftoption.h
@@ -153,8 +152,12 @@ cc_library {
         },
     },
 
+    llndk: {
+        private: true,
+        symbol_file: "libft2.map.txt",
+    },
     sdk_version: "current",
-    min_sdk_version: "30",
+    min_sdk_version: "apex_inherit",
     apex_available: [
         "com.android.mediaprovider",
         "//apex_available:platform"
