@@ -1955,6 +1955,11 @@
 
         /* construct an outline structure for              */
         /* communication with `TT_Vary_Apply_Glyph_Deltas' */
+        if ( gloader->current.num_subglyphs > (SHRT_MAX - 4) ) {
+            error = FT_Err_Invalid_Argument;
+            goto Exit;
+        }
+
         outline.n_points   = (short)( gloader->current.num_subglyphs + 4 );
         outline.n_contours = outline.n_points;
 
