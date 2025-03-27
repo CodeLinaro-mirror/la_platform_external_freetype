@@ -395,8 +395,7 @@ FT_BEGIN_HEADER
    * incrementally as the document is parsed, such as the Ghostscript
    * interpreter for the PostScript language.
    */
-/* ANDROID: disabled */
-/* #define FT_CONFIG_OPTION_INCREMENTAL                                  */
+#define FT_CONFIG_OPTION_INCREMENTAL
 
 
   /**************************************************************************
