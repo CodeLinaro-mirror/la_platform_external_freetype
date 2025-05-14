@@ -11,6 +11,8 @@ package {
         "//device/google/cuttlefish/host/frontend/webrtc",
         "//device/google/cuttlefish/host/libs/confui",
         "//device/google/cuttlefish/host/libs/screen_connector",
+        "//external/igt-gpu-tools",
+        "//external/cairo",
         "//external/pdfium",
         "//external/skia",
         "//frameworks/base/core/jni",
