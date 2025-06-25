@@ -994,7 +994,8 @@
         /* the check for `num_locations' assures that we actually    */
         /* test for instructions in a TTF and not in a CFF-based OTF */
         /*                                                           */
-        /* we check the size of the `fpgm' and `prep' tables, too -- */
+        /* since `maxSizeOfInstructions' might be unreliable, we     */
+        /* check the size of the `fpgm' and `prep' tables, too --    */
         /* the assumption is that there don't exist real TTFs where  */
         /* both `fpgm' and `prep' tables are missing                 */
         if ( ( mode == FT_RENDER_MODE_LIGHT           &&
@@ -1002,8 +1003,9 @@
                  !is_light_type1                    ) )         ||
              ( FT_IS_SFNT( face )                             &&
                ttface->num_locations                          &&
+               ttface->max_profile.maxSizeOfInstructions == 0 &&
                ttface->font_program_size == 0                 &&
-               ttface->cvt_program_size <= 7                  ) )
+               ttface->cvt_program_size == 0                  ) )
           autohint = TRUE;
       }
     }
@@ -1251,13 +1253,13 @@
     FT_Driver  driver = (FT_Driver)driver_;
 
 
-    /* finalize format-specific stuff */
-    if ( driver->clazz->done_size )
-      driver->clazz->done_size( size );
-
     /* finalize client-specific data */
     if ( size->generic.finalizer )
       size->generic.finalizer( size );
+
+    /* finalize format-specific stuff */
+    if ( driver->clazz->done_size )
+      driver->clazz->done_size( size );
 
     FT_FREE( size->internal );
     FT_FREE( size );
@@ -1320,6 +1322,10 @@
                       driver );
     face->size = NULL;
 
+    /* now discard client data */
+    if ( face->generic.finalizer )
+      face->generic.finalizer( face );
+
     /* discard charmaps */
     destroy_charmaps( face, memory );
 
@@ -1333,10 +1339,6 @@
       ( face->face_flags & FT_FACE_FLAG_EXTERNAL_STREAM ) != 0 );
 
     face->stream = NULL;
-
-    /* now discard client data */
-    if ( face->generic.finalizer )
-      face->generic.finalizer( face );
 
     /* get rid of it */
     if ( face->internal )
@@ -1357,9 +1359,21 @@
   }
 
 
-  /* documentation is in ftobjs.h */
-
-  FT_BASE_DEF( FT_Error )
+  /**************************************************************************
+   *
+   * @Function:
+   *   find_unicode_charmap
+   *
+   * @Description:
+   *   This function finds a Unicode charmap, if there is one.
+   *   And if there is more than one, it tries to favour the more
+   *   extensive one, i.e., one that supports UCS-4 against those which
+   *   are limited to the BMP (said UCS-2 encoding.)
+   *
+   *   This function is called from open_face() (just below), and also
+   *   from FT_Select_Charmap( ..., FT_ENCODING_UNICODE ).
+   */
+  static FT_Error
   find_unicode_charmap( FT_Face  face )
   {
     FT_CharMap*  first;
