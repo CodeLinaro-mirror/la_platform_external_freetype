@@ -76,7 +76,6 @@ ifndef CFLAGS
             -Wpointer-arith \
             -Wwrite-strings \
             -Wredundant-decls \
-            -Wno-format-extra-args \
             -Wno-long-long \
             $(nested_externs) \
             $(strict_prototypes)

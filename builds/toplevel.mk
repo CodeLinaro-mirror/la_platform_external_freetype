@@ -274,16 +274,12 @@ dist:
 # GNU `config' git repository), relative to the `tmp' directory used during
 # `make dist'.
 #
-# GNU_CONFIG_GIT_URL = git://git.savannah.gnu.org/config.git
-GNU_CONFIG_GIT_URL = https://git.savannah.gnu.org/git/config.git
-GNU_CONFIG_DESTDIR = $(TOP_DIR)/subprojects/gnu-config
-
-CONFIG_GUESS = $(GNU_CONFIG_DESTDIR)/config.guess
-CONFIG_SUB   = $(GNU_CONFIG_DESTDIR)/config.sub
+CONFIG_GUESS = ~/git/config/config.guess
+CONFIG_SUB   = ~/git/config/config.sub
 
 # We also use this repository to access the gnulib script that converts git
 # commit messages to a ChangeLog file.
-CHANGELOG_SCRIPT = $(GNU_CONFIG_DESTDIR)/gitlog-to-changelog
+CHANGELOG_SCRIPT = ~/git/config/gitlog-to-changelog
 
 
 # Don't say `make do-dist'.  Always use `make dist' instead.
@@ -299,8 +295,6 @@ do-dist: distclean refdoc
 	sh autogen.sh
 	rm -rf $(TOP_DIR)/builds/unix/autom4te.cache
 
-	rm -rf $(GNU_CONFIG_DESTDIR)
-	git clone https://git.savannah.gnu.org/git/config.git $(GNU_CONFIG_DESTDIR)
 	cp $(CONFIG_GUESS) $(TOP_DIR)/builds/unix
 	cp $(CONFIG_SUB) $(TOP_DIR)/builds/unix
 
@@ -318,6 +312,5 @@ do-dist: distclean refdoc
 
 	@# Remove more stuff related to git.
 	rm -rf $(TOP_DIR)/subprojects/dlg
-	rm -rf $(TOP_DIR)/subprojects/gnu-config
 
 # EOF
