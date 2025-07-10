@@ -510,10 +510,9 @@
 
     error = FT_New_Size( t42face->ttf_face, &ttsize );
     if ( !error )
-    {
       t42size->ttsize = ttsize;
-      FT_Activate_Size( ttsize );
-    }
+
+    FT_Activate_Size( ttsize );
 
     return error;
   }

@@ -170,8 +170,8 @@ typedef ptrdiff_t  FT_PtrDist;
 #define Smooth_Err_Invalid_Argument     -3
 #define Smooth_Err_Raster_Overflow      -4
 
-#define FT_BEGIN_HEADER  /* nothing */
-#define FT_END_HEADER    /* nothing */
+#define FT_BEGIN_HEADER
+#define FT_END_HEADER
 
 #include "ftimage.h"
 #include "ftgrays.h"
@@ -1873,7 +1873,6 @@ typedef ptrdiff_t  FT_PtrDist;
     TCoord*  band;
 
     int  continued = 0;
-    int  error     = Smooth_Err_Ok;
 
 
     /* Initialize the null cell at the end of the poll. */
@@ -1908,6 +1907,7 @@ typedef ptrdiff_t  FT_PtrDist;
       do
       {
         TCoord  i;
+        int     error;
 
 
         ras.min_ex = band[1];
@@ -1936,7 +1936,7 @@ typedef ptrdiff_t  FT_PtrDist;
           continue;
         }
         else if ( error != Smooth_Err_Raster_Overflow )
-          goto Exit;
+          return error;
 
         /* render pool overflow; we will reduce the render band by half */
         i = ( band[0] - band[1] ) >> 1;
@@ -1945,8 +1945,7 @@ typedef ptrdiff_t  FT_PtrDist;
         if ( i == 0 )
         {
           FT_TRACE7(( "gray_convert_glyph: rotten glyph\n" ));
-          error = FT_THROW( Raster_Overflow );
-          goto Exit;
+          return FT_THROW( Raster_Overflow );
         }
 
         band++;
@@ -1955,11 +1954,7 @@ typedef ptrdiff_t  FT_PtrDist;
       } while ( band >= bands );
     }
 
-  Exit:
-    ras.cell   = ras.cell_free = ras.cell_null = NULL;
-    ras.ycells = NULL;
-
-    return error;
+    return Smooth_Err_Ok;
   }
 
 
