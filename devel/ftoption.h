@@ -158,12 +158,12 @@ FT_BEGIN_HEADER
 
   /**************************************************************************
    *
-   * If this macro is defined, try to use an inlined 64-bit or assembler
-   * version of the @FT_MulFix function, which is a 'hotspot' when loading
-   * and hinting glyphs, and which should be executed as fast as possible.
+   * If this macro is defined, try to use an inlined assembler version of the
+   * @FT_MulFix function, which is a 'hotspot' when loading and hinting
+   * glyphs, and which should be executed as fast as possible.
    *
-   * If your compiler is not C99-compliant or CPU assembly is not supported,
-   * you can disable this option.
+   * Note that if your compiler or CPU is not supported, this will default to
+   * the standard and portable implementation found in `ftcalc.c`.
    */
 #define FT_CONFIG_OPTION_INLINE_MULFIX
 
@@ -785,10 +785,10 @@ FT_BEGIN_HEADER
   /**************************************************************************
    *
    * Option `TT_CONFIG_OPTION_GPOS_KERNING` enables a basic GPOS kerning
-   * implementation (for TrueType and OpenType fonts only).  With this
-   * defined, FreeType is able to get kerning pair data from the GPOS 'kern'
-   * feature as well as legacy 'kern' tables; without this defined, FreeType
-   * will only be able to use legacy 'kern' tables.
+   * implementation (for TrueType fonts only).  With this defined, FreeType
+   * is able to get kerning pair data from the GPOS 'kern' feature as well as
+   * legacy 'kern' tables; without this defined, FreeType will only be able
+   * to use legacy 'kern' tables.
    *
    * Note that FreeType does not support more advanced GPOS layout features;
    * even the 'kern' feature implemented here doesn't handle more

@@ -33,7 +33,6 @@ AUTOF_DRV_SRC := $(AUTOF_DIR)/afadjust.c \
                  $(AUTOF_DIR)/afcjk.c    \
                  $(AUTOF_DIR)/afdummy.c  \
                  $(AUTOF_DIR)/afglobal.c \
-                 $(AUTOF_DIR)/afgsub.c   \
                  $(AUTOF_DIR)/afhints.c  \
                  $(AUTOF_DIR)/afindic.c  \
                  $(AUTOF_DIR)/aflatin.c  \

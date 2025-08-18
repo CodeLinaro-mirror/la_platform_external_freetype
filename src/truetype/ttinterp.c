@@ -95,20 +95,12 @@
   /* default values of our `scan_type' and `scan_control' fields (which */
   /* the documentation's `scan_control' variable is split into) are     */
   /* zero.                                                              */
-  /*                                                                    */
-  /* The rounding compensation should logically belong here but poorly  */
-  /* described in the OpenType specs.  It was probably important in the */
-  /* days of dot matrix printers.  The values are referenced by color   */
-  /* as Gray, Black, and White in order. The Apple specification says   */
-  /* that the Gray compensation is always zero.  The fourth value is    */
-  /* not described at all, but Greg says that it is the same as Gray.   */
-  /* FreeType sets all compensation values to zero.                     */
 
   const TT_GraphicsState  tt_default_graphics_state =
   {
     0, 0, 0,  1, 1, 1,
     { 0x4000, 0 }, { 0x4000, 0 }, { 0x4000, 0 },
-    1, 1, { 0, 0, 0, 0 },
+    1, 1,
 
     64, 68, 0, 0, 9, 3,
     TRUE, 0, FALSE, 0
@@ -209,6 +201,9 @@
    *   exec ::
    *     A handle to the target execution context.
    *
+   *   memory ::
+   *     A handle to the parent memory object.
+   *
    * @Note:
    *   Only the glyph loader and debugger should call this function.
    */
@@ -221,6 +216,10 @@
     /* points zone */
     exec->maxPoints   = 0;
     exec->maxContours = 0;
+
+    /* free stack */
+    FT_FREE( exec->stack );
+    exec->stackSize = 0;
 
     /* free glyf cvt working area */
     FT_FREE( exec->glyfCvt );
@@ -278,20 +277,43 @@
                    TT_Face         face,
                    TT_Size         size )
   {
+    FT_Int     i;
+    FT_Long    stackSize;
+    FT_Error   error;
     FT_Memory  memory = exec->memory;
 
 
     exec->face = face;
     exec->size = size;
 
-    /* CVT and storage are not persistent in FreeType */
-    /* reset them after they might have been modifief */
-    exec->storage = exec->stack   + exec->stackSize;
-    exec->cvt     = exec->storage + exec->storeSize;
+    exec->cvtSize = size->cvt_size;
+    exec->cvt     = size->cvt;
+
+    exec->storeSize = size->storage_size;
+    exec->storage   = size->storage;
+
+    /* XXX: We reserve a little more elements on the stack to deal safely */
+    /*      with broken fonts like arialbs, courbs, timesbs, etc.         */
+    stackSize = face->max_profile.maxStackElements + 32;
+    if ( FT_QRENEW_ARRAY( exec->stack, exec->stackSize, stackSize ) )
+      return error;
+    exec->stackSize = stackSize;
 
     /* free previous glyph code range */
     FT_FREE( exec->glyphIns );
     exec->glyphSize = 0;
+
+    for ( i = 0; i < TT_MAX_CODE_RANGES; i++ )
+      exec->codeRangeTable[i] = size->codeRangeTable[i];
+
+    exec->numFDefs   = size->num_function_defs;
+    exec->maxFDefs   = size->max_function_defs;
+    exec->numIDefs   = size->num_instruction_defs;
+    exec->maxIDefs   = size->max_instruction_defs;
+    exec->FDefs      = size->function_defs;
+    exec->IDefs      = size->instruction_defs;
+    exec->maxFunc    = size->max_func;
+    exec->maxIns     = size->max_ins;
 
     exec->pointSize  = size->point_size;
     exec->tt_metrics = size->ttmetrics;
@@ -326,6 +348,9 @@
   TT_Save_Context( TT_ExecContext  exec,
                    TT_Size         size )
   {
+    FT_Int  i;
+
+
     /* UNDOCUMENTED!                                            */
     /* Only these GS values can be modified by the CVT program. */
 
@@ -339,6 +364,15 @@
     size->GS.instruct_control    = exec->GS.instruct_control;
     size->GS.scan_control        = exec->GS.scan_control;
     size->GS.scan_type           = exec->GS.scan_type;
+
+    size->num_function_defs    = exec->numFDefs;
+    size->num_instruction_defs = exec->numIDefs;
+
+    size->max_func = exec->maxFunc;
+    size->max_ins  = exec->maxIns;
+
+    for ( i = 0; i < TT_MAX_CODE_RANGES; i++ )
+      size->codeRangeTable[i] = exec->codeRangeTable[i];
   }
 
 
@@ -1675,8 +1709,8 @@
    *   distance ::
    *     The distance (not) to round.
    *
-   *   compensation ::
-   *     The engine compensation.
+   *   color ::
+   *     The engine compensation color.
    *
    * @Return:
    *   The compensated distance.
@@ -1684,10 +1718,10 @@
   static FT_F26Dot6
   Round_None( TT_ExecContext  exc,
               FT_F26Dot6      distance,
-              FT_F26Dot6      compensation )
+              FT_Int          color )
   {
+    FT_F26Dot6  compensation = exc->tt_metrics.compensations[color];
     FT_F26Dot6  val;
-    FT_UNUSED( exc );
 
 
     if ( distance >= 0 )
@@ -1718,8 +1752,8 @@
    *   distance ::
    *     The distance to round.
    *
-   *   compensation ::
-   *     The engine compensation.
+   *   color ::
+   *     The engine compensation color.
    *
    * @Return:
    *   Rounded distance.
@@ -1727,10 +1761,10 @@
   static FT_F26Dot6
   Round_To_Grid( TT_ExecContext  exc,
                  FT_F26Dot6      distance,
-                 FT_F26Dot6      compensation )
+                 FT_Int          color )
   {
+    FT_F26Dot6  compensation = exc->tt_metrics.compensations[color];
     FT_F26Dot6  val;
-    FT_UNUSED( exc );
 
 
     if ( distance >= 0 )
@@ -1763,8 +1797,8 @@
    *   distance ::
    *     The distance to round.
    *
-   *   compensation ::
-   *     The engine compensation.
+   *   color ::
+   *     The engine compensation color.
    *
    * @Return:
    *   Rounded distance.
@@ -1772,10 +1806,10 @@
   static FT_F26Dot6
   Round_To_Half_Grid( TT_ExecContext  exc,
                       FT_F26Dot6      distance,
-                      FT_F26Dot6      compensation )
+                      FT_Int          color )
   {
+    FT_F26Dot6  compensation = exc->tt_metrics.compensations[color];
     FT_F26Dot6  val;
-    FT_UNUSED( exc );
 
 
     if ( distance >= 0 )
@@ -1810,8 +1844,8 @@
    *   distance ::
    *     The distance to round.
    *
-   *   compensation ::
-   *     The engine compensation.
+   *   color ::
+   *     The engine compensation color.
    *
    * @Return:
    *   Rounded distance.
@@ -1819,10 +1853,10 @@
   static FT_F26Dot6
   Round_Down_To_Grid( TT_ExecContext  exc,
                       FT_F26Dot6      distance,
-                      FT_F26Dot6      compensation )
+                      FT_Int          color )
   {
+    FT_F26Dot6  compensation = exc->tt_metrics.compensations[color];
     FT_F26Dot6  val;
-    FT_UNUSED( exc );
 
 
     if ( distance >= 0 )
@@ -1854,8 +1888,8 @@
    *   distance ::
    *     The distance to round.
    *
-   *   compensation ::
-   *     The engine compensation.
+   *   color ::
+   *     The engine compensation color.
    *
    * @Return:
    *   Rounded distance.
@@ -1863,10 +1897,10 @@
   static FT_F26Dot6
   Round_Up_To_Grid( TT_ExecContext  exc,
                     FT_F26Dot6      distance,
-                    FT_F26Dot6      compensation )
+                    FT_Int          color )
   {
+    FT_F26Dot6  compensation = exc->tt_metrics.compensations[color];
     FT_F26Dot6  val;
-    FT_UNUSED( exc );
 
 
     if ( distance >= 0 )
@@ -1899,8 +1933,8 @@
    *   distance ::
    *     The distance to round.
    *
-   *   compensation ::
-   *     The engine compensation.
+   *   color ::
+   *     The engine compensation color.
    *
    * @Return:
    *   Rounded distance.
@@ -1908,10 +1942,10 @@
   static FT_F26Dot6
   Round_To_Double_Grid( TT_ExecContext  exc,
                         FT_F26Dot6      distance,
-                        FT_F26Dot6      compensation )
+                        FT_Int          color )
   {
+    FT_F26Dot6  compensation = exc->tt_metrics.compensations[color];
     FT_F26Dot6  val;
-    FT_UNUSED( exc );
 
 
     if ( distance >= 0 )
@@ -1944,8 +1978,8 @@
    *   distance ::
    *     The distance to round.
    *
-   *   compensation ::
-   *     The engine compensation.
+   *   color ::
+   *     The engine compensation color.
    *
    * @Return:
    *   Rounded distance.
@@ -1959,8 +1993,9 @@
   static FT_F26Dot6
   Round_Super( TT_ExecContext  exc,
                FT_F26Dot6      distance,
-               FT_F26Dot6      compensation )
+               FT_Int          color )
   {
+    FT_F26Dot6  compensation = exc->tt_metrics.compensations[color];
     FT_F26Dot6  val;
 
 
@@ -1999,8 +2034,8 @@
    *   distance ::
    *     The distance to round.
    *
-   *   compensation ::
-   *     The engine compensation.
+   *   color ::
+   *     The engine compensation color.
    *
    * @Return:
    *   Rounded distance.
@@ -2012,8 +2047,9 @@
   static FT_F26Dot6
   Round_Super_45( TT_ExecContext  exc,
                   FT_F26Dot6      distance,
-                  FT_F26Dot6      compensation )
+                  FT_Int          color )
   {
+    FT_F26Dot6  compensation = exc->tt_metrics.compensations[color];
     FT_F26Dot6  val;
 
 
@@ -2567,7 +2603,7 @@
   Ins_ODD( TT_ExecContext  exc,
            FT_Long*        args )
   {
-    args[0] = ( ( exc->func_round( exc, args[0], 0 ) & 64 ) == 64 );
+    args[0] = ( ( exc->func_round( exc, args[0], 3 ) & 127 ) == 64 );
   }
 
 
@@ -2581,7 +2617,7 @@
   Ins_EVEN( TT_ExecContext  exc,
             FT_Long*        args )
   {
-    args[0] = ( ( exc->func_round( exc, args[0], 0 ) & 64 ) == 0 );
+    args[0] = ( ( exc->func_round( exc, args[0], 3 ) & 127 ) == 0 );
   }
 
 
@@ -2911,8 +2947,7 @@
   Ins_ROUND( TT_ExecContext  exc,
              FT_Long*        args )
   {
-    args[0] = exc->func_round( exc, args[0],
-                               exc->GS.compensation[exc->opcode & 3] );
+    args[0] = exc->func_round( exc, args[0], exc->opcode & 3 );
   }
 
 
@@ -2926,8 +2961,7 @@
   Ins_NROUND( TT_ExecContext  exc,
               FT_Long*        args )
   {
-    args[0] = Round_None( exc, args[0],
-                          exc->GS.compensation[exc->opcode & 3] );
+    args[0] = Round_None( exc, args[0], exc->opcode & 3 );
   }
 
 
@@ -3130,9 +3164,6 @@
         nIfs--;
         Out = FT_BOOL( nIfs == 0 );
         break;
-
-      default:
-        break;
       }
     } while ( Out == 0 );
   }
@@ -3165,9 +3196,6 @@
 
       case 0x59:    /* EIF */
         nIfs--;
-        break;
-
-      default:
         break;
       }
     } while ( nIfs != 0 );
@@ -3336,9 +3364,6 @@
       case 0x2D:   /* ENDF */
         rec->end = exc->IP;
         return;
-
-      default:
-        break;
       }
     }
   }
@@ -3620,9 +3645,6 @@
       case 0x2D:   /* ENDF */
         def->end = exc->IP;
         return;
-
-      default:
-        break;
       }
     }
   }
@@ -5296,7 +5318,7 @@
     if ( ( exc->opcode & 1 ) != 0 )
     {
       cur_dist = FAST_PROJECT( &exc->zp0.cur[point] );
-      distance = SUB_LONG( exc->func_round( exc, cur_dist, 0 ), cur_dist );
+      distance = SUB_LONG( exc->func_round( exc, cur_dist, 3 ), cur_dist );
     }
     else
       distance = 0;
@@ -5381,7 +5403,7 @@
       if ( delta > control_value_cutin )
         distance = org_dist;
 
-      distance = exc->func_round( exc, distance, 0 );
+      distance = exc->func_round( exc, distance, 3 );
     }
 
     exc->func_move( exc, &exc->zp0, point, SUB_LONG( distance, org_dist ) );
@@ -5403,7 +5425,7 @@
             FT_Long*        args )
   {
     FT_UShort   point = 0;
-    FT_F26Dot6  org_dist, distance, compensation;
+    FT_F26Dot6  org_dist, distance;
 
 
     point = (FT_UShort)args[0];
@@ -5472,12 +5494,12 @@
 
     /* round flag */
 
-    compensation = exc->GS.compensation[exc->opcode & 3];
-
     if ( ( exc->opcode & 4 ) != 0 )
-      distance = exc->func_round( exc, org_dist, compensation );
+    {
+      distance = exc->func_round( exc, org_dist, exc->opcode & 3 );
+    }
     else
-      distance = Round_None( exc, org_dist, compensation );
+      distance = Round_None( exc, org_dist, exc->opcode & 3 );
 
     /* minimum distance flag */
 
@@ -5529,8 +5551,7 @@
     FT_F26Dot6  cvt_dist,
                 distance,
                 cur_dist,
-                org_dist,
-                compensation;
+                org_dist;
 
     FT_F26Dot6  delta;
 
@@ -5596,8 +5617,6 @@
 
     /* control value cut-in and round */
 
-    compensation = exc->GS.compensation[exc->opcode & 3];
-
     if ( ( exc->opcode & 4 ) != 0 )
     {
       /* XXX: UNDOCUMENTED!  Only perform cut-in test when both points */
@@ -5628,10 +5647,10 @@
           cvt_dist = org_dist;
       }
 
-      distance = exc->func_round( exc, cvt_dist, compensation );
+      distance = exc->func_round( exc, cvt_dist, exc->opcode & 3 );
     }
     else
-      distance = Round_None( exc, cvt_dist, compensation );
+      distance = Round_None( exc, cvt_dist, exc->opcode & 3 );
 
     /* minimum distance test */
 
@@ -6534,7 +6553,7 @@
     /* Otherwise, instructions may behave weirdly and rendering results */
     /* may differ between v35 and v40 mode, e.g., in `Times New Roman   */
     /* Bold Italic'. */
-    if ( SUBPIXEL_HINTING_MINIMAL && exc->mode != FT_RENDER_MODE_MONO )
+    if ( SUBPIXEL_HINTING_MINIMAL && exc->subpixel_hinting_lean )
     {
       /*********************************
        * HINTING FOR SUBPIXEL
@@ -6551,7 +6570,7 @@
        * Selector Bit:  8
        * Return Bit(s): 15
        */
-      if ( ( args[0] & 256 ) != 0 && exc->mode == FT_RENDER_MODE_LCD_V )
+      if ( ( args[0] & 256 ) != 0 && exc->vertical_lcd_lean )
         K |= 1 << 15;
 
       /*********************************
@@ -6572,7 +6591,7 @@
        * The only smoothing method FreeType supports unless someone sets
        * FT_LOAD_TARGET_MONO.
        */
-      if ( ( args[0] & 2048 ) != 0 && exc->mode != FT_RENDER_MODE_MONO )
+      if ( ( args[0] & 2048 ) != 0 && exc->subpixel_hinting_lean )
         K |= 1 << 18;
 
       /*********************************
@@ -6584,10 +6603,7 @@
        * Grayscale rendering is what FreeType does anyway unless someone
        * sets FT_LOAD_TARGET_MONO or FT_LOAD_TARGET_LCD(_V)
        */
-      if ( ( args[0] & 4096 ) != 0           &&
-           exc->mode != FT_RENDER_MODE_MONO  &&
-           exc->mode != FT_RENDER_MODE_LCD   &&
-           exc->mode != FT_RENDER_MODE_LCD_V )
+      if ( ( args[0] & 4096 ) != 0 && exc->grayscale_cleartype )
         K |= 1 << 19;
     }
 #endif
@@ -7405,7 +7421,7 @@
     } while ( !exc->instruction_trap );
 
   LNo_Error_:
-    FT_TRACE4(( "  %lu instruction%s executed\n",
+    FT_TRACE4(( "  %ld instruction%s executed\n",
                 ins_counter,
                 ins_counter == 1 ? "" : "s" ));
 
@@ -7447,9 +7463,6 @@
 
     /* We restrict the number of twilight points to a reasonable,     */
     /* heuristic value to avoid slow execution of malformed bytecode. */
-    /* The selected value is large enough to support fonts hinted     */
-    /* with `ttfautohint`, which uses twilight points to store        */
-    /* vertical coordinates of (auto-hinter) segments.                */
     num_twilight_points = FT_MAX( 30,
                                   2 * ( exec->pts.n_points + exec->cvtSize ) );
     if ( exec->twilight.n_points > num_twilight_points )
@@ -7458,7 +7471,7 @@
         num_twilight_points = 0xFFFFU;
 
       FT_TRACE5(( "TT_RunIns: Resetting number of twilight points\n" ));
-      FT_TRACE5(( "           from %d to the more reasonable value %lu\n",
+      FT_TRACE5(( "           from %d to the more reasonable value %ld\n",
                   exec->twilight.n_points,
                   num_twilight_points ));
       exec->twilight.n_points = (FT_UShort)num_twilight_points;
@@ -7493,11 +7506,11 @@
       exec->loopcall_counter_max = 100 * (FT_ULong)exec->face->root.num_glyphs;
 
     FT_TRACE5(( "TT_RunIns: Limiting total number of loops in LOOPCALL"
-                " to %lu\n", exec->loopcall_counter_max ));
+                " to %ld\n", exec->loopcall_counter_max ));
 
     exec->neg_jump_counter_max = exec->loopcall_counter_max;
     FT_TRACE5(( "TT_RunIns: Limiting total number of backward jumps"
-                " to %lu\n", exec->neg_jump_counter_max ));
+                " to %ld\n", exec->neg_jump_counter_max ));
 
     /* set PPEM and CVT functions */
     if ( exec->metrics.x_ppem != exec->metrics.y_ppem )

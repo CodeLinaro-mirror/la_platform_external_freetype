@@ -23,7 +23,6 @@
 #include <freetype/internal/ftdebug.h>
 
 #ifdef FT_CONFIG_OPTION_USE_HARFBUZZ
-#  include "afgsub.h"
 #  include "ft-hb-ft.h"
 #endif
 
@@ -306,7 +305,7 @@
           if ( !( count % 10 ) )
             FT_TRACE4(( " " ));
 
-          FT_TRACE4(( " %u", idx ));
+          FT_TRACE4(( " %d", idx ));
           count++;
 
           if ( !( count % 10 ) )
@@ -365,16 +364,11 @@
     {
       globals->hb_font = ft_hb_ft_font_create( globals );
       globals->hb_buf  = hb( buffer_create )();
-
-      af_parse_gsub( globals );
     }
     else
     {
       globals->hb_font = NULL;
       globals->hb_buf  = NULL;
-
-      globals->gsub                          = NULL;
-      globals->gsub_lookups_single_alternate = NULL;
     }
 #endif
 
@@ -427,9 +421,6 @@
       {
         hb( font_destroy )( globals->hb_font );
         hb( buffer_destroy )( globals->hb_buf );
-
-        FT_FREE( globals->gsub );
-        FT_FREE( globals->gsub_lookups_single_alternate );
       }
 #endif
 

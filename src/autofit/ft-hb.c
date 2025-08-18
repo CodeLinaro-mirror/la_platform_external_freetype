@@ -101,11 +101,8 @@
 #else /* !_WIN32 */
 
 #  ifdef RTLD_DEFAULT
-#    define FT_RTLD_FLAGS RTLD_LAZY | RTLD_GLOBAL
     lib             = RTLD_DEFAULT;
     version_atleast = DLSYM( lib, hb_version_atleast );
-#  else
-#    define FT_RTLD_FLAGS RTLD_LAZY
 #  endif
 
     if ( !version_atleast )
@@ -119,7 +116,7 @@
        * variables, and closing the library will cause them to be
        * invalidated.
        */
-      lib = dlopen( FT_LIBHARFBUZZ, FT_RTLD_FLAGS );
+      lib = dlopen( FT_LIBHARFBUZZ, RTLD_LAZY | RTLD_GLOBAL );
       if ( !lib )
         goto Fail;
       version_atleast = DLSYM( lib, hb_version_atleast );
