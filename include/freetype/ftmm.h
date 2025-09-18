@@ -4,7 +4,7 @@
  *
  *   FreeType Multiple Master font interface (specification).
  *
- * Copyright (C) 1996-2023 by
+ * Copyright (C) 1996-2024 by
  * David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
@@ -19,8 +19,13 @@
 #ifndef FTMM_H_
 #define FTMM_H_
 
+#include <freetype/freetype.h>
 
-#include <freetype/t1tables.h>
+#ifdef FREETYPE_H
+#error "freetype.h of FreeType 1 has been loaded!"
+#error "Please fix the directory search order for header files"
+#error "so that freetype.h of FreeType 2 is found first."
+#endif
 
 
 FT_BEGIN_HEADER
@@ -51,6 +56,30 @@ FT_BEGIN_HEADER
    *   OpenType variation fonts, it returns true.
    *
    */
+
+
+  /**************************************************************************
+   *
+   * @enum:
+   *   T1_MAX_MM_XXX
+   *
+   * @description:
+   *   Multiple Masters limits as defined in their specifications.
+   *
+   * @values:
+   *   T1_MAX_MM_AXIS ::
+   *     The maximum number of Multiple Masters axes.
+   *
+   *   T1_MAX_MM_DESIGNS ::
+   *     The maximum number of Multiple Masters designs.
+   *
+   *   T1_MAX_MM_MAP_POINTS ::
+   *     The maximum number of elements in a design map.
+   *
+   */
+#define T1_MAX_MM_AXIS         4
+#define T1_MAX_MM_DESIGNS     16
+#define T1_MAX_MM_MAP_POINTS  20
 
 
   /**************************************************************************
@@ -411,6 +440,12 @@ FT_BEGIN_HEADER
    *   the @FT_FACE_FLAG_VARIATION bit in @FT_Face's `face_flags` field
    *   (i.e., @FT_IS_VARIATION will return true).  If `num_coords` is zero,
    *   this bit flag gets unset.
+   *
+   *   [Since 2.14] This function also sets the @FT_FACE_FLAG_VARIATION bit
+   *   in @FT_Face's `face_flags` field (i.e., @FT_IS_VARIATION will return
+   *   true) if any of the provided coordinates is different from the face's
+   *   default value for the corresponding axis, that is, the set up face is
+   *   not at its default position.
    */
   FT_EXPORT( FT_Error )
   FT_Set_Var_Design_Coordinates( FT_Face    face,
@@ -497,6 +532,12 @@ FT_BEGIN_HEADER
    *   the @FT_FACE_FLAG_VARIATION bit in @FT_Face's `face_flags` field
    *   (i.e., @FT_IS_VARIATION will return true).  If `num_coords` is zero,
    *   this bit flag gets unset.
+   *
+   *   [Since 2.14] This function also sets the @FT_FACE_FLAG_VARIATION bit
+   *   in @FT_Face's `face_flags` field (i.e., @FT_IS_VARIATION will return
+   *   true) if any of the provided coordinates is different from the face's
+   *   default value for the corresponding axis, that is, the set up face is
+   *   not at its default position.
    */
   FT_EXPORT( FT_Error )
   FT_Set_MM_Blend_Coordinates( FT_Face    face,

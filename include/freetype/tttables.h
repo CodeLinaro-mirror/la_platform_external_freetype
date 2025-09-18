@@ -5,7 +5,7 @@
  *   Basic SFNT/TrueType tables definitions and interface
  *   (specification only).
  *
- * Copyright (C) 1996-2023 by
+ * Copyright (C) 1996-2024 by
  * David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
@@ -705,6 +705,9 @@ FT_BEGIN_HEADER
    *     definitions found in the @FT_TRUETYPE_TAGS_H file, or forge a new
    *     one with @FT_MAKE_TAG.
    *
+   *     [Since 2.14] Use value~1 if you want to access the table directory
+   *     of the (currently selected) font.
+   *
    *   offset ::
    *     The starting offset in the table (or file if tag~==~0).
    *
@@ -838,8 +841,9 @@ FT_BEGIN_HEADER
    *     The target charmap.
    *
    * @return:
-   *   The format of `charmap`.  If `charmap` doesn't belong to an SFNT face,
-   *   return -1.
+   *   The format of `charmap`.  If `charmap` doesn't belong to an SFNT face
+   *   (including the synthetic Unicode charmap sometimes created by
+   *   FreeType), return -1.
    */
   FT_EXPORT( FT_Long )
   FT_Get_CMap_Format( FT_CharMap  charmap );
