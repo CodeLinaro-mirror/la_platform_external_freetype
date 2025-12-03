@@ -17,6 +17,7 @@ package {
         "//external/skia",
         "//frameworks/base/core/jni",
         "//frameworks/base/libs/hwui",
+        "//frameworks/native/libs/ipcrenderbuffer:__subpackages__",
         "//frameworks/minikin:__subpackages__",
         "//frameworks/opt/wear/jni",
         "//frameworks/rs",
