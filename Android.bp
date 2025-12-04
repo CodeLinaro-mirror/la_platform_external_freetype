@@ -194,6 +194,38 @@ cc_library {
         "com.android.mediaprovider",
         "//apex_available:platform"
     ],
+    visibility: [
+        // libft2 is needed by build/soong/cc here: https://source.corp.google.com/h/googleplex-android/platform/superproject/main/+/main:build/soong/cc/Android.bp;l=153;drc=beae6368054d4b56425cdf4705f10804617fdeaa
+        "//build/soong/cc",
+        "//cts/hostsidetests/securitybulletin/securityPatch/CVE-2016-10244",
+        "//cts/hostsidetests/securitybulletin/securityPatch/CVE-2019-1988",
+        "//cts/hostsidetests/securitybulletin/securityPatch/CVE-2023-21261",
+        "//cts/hostsidetests/securitybulletin/securityPatch/CVE-2024-43091",
+        "//cts/hostsidetests/securitybulletin/securityPatch/CVE-2024-43097",
+        "//cts/hostsidetests/securitybulletin/securityPatch/CVE-2024-43767",
+        "//device/google/cuttlefish/host/frontend/webrtc",
+        "//device/google/cuttlefish/host/libs/confui",
+        "//device/google/cuttlefish/host/libs/screen_connector",
+        "//external/igt-gpu-tools",
+        "//external/cairo",
+        "//external/pdfium",
+        "//external/skia",
+        "//frameworks/base/core/jni",
+        "//frameworks/base/libs/hwui",
+        "//frameworks/native/libs/ipcrenderbuffer:__subpackages__",
+        "//frameworks/native/services/surfaceflinger/tests",
+        "//frameworks/minikin:__subpackages__",
+        "//frameworks/opt/wear/jni",
+        "//frameworks/rs",
+        "//hardware/interfaces/graphics/allocator/aidl/vts",
+        "//packages/providers/MediaProvider/pdf/framework/libs/pdfClient",
+        "//system/teeui/libteeui",
+        "//system/teeui/libteeui/example",
+        "//system/teeui/libteeui_jni",
+        "//system/teeui/test",
+        "//tools/security/fuzzing/orphans/libskia",
+        "//vendor:__subpackages__",
+    ],
 }
 
 // variant of libft2 without any library dependencies.
