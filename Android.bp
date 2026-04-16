@@ -2,12 +2,7 @@ package {
     default_applicable_licenses: ["external_freetype_license"],
     // FreeType will be deprecated and migrate to Skrifa. (b/405267306)
     default_visibility: [
-        "//cts/hostsidetests/securitybulletin/securityPatch/CVE-2016-10244",
-        "//cts/hostsidetests/securitybulletin/securityPatch/CVE-2019-1988",
-        "//cts/hostsidetests/securitybulletin/securityPatch/CVE-2023-21261",
-        "//cts/hostsidetests/securitybulletin/securityPatch/CVE-2024-43091",
-        "//cts/hostsidetests/securitybulletin/securityPatch/CVE-2024-43097",
-        "//cts/hostsidetests/securitybulletin/securityPatch/CVE-2024-43767",
+        "//cts/hostsidetests/securitybulletin/securityPatch:__subpackages__",
         "//device/google/cuttlefish/host/frontend/webrtc",
         "//device/google/cuttlefish/host/libs/confui",
         "//device/google/cuttlefish/host/libs/screen_connector",
@@ -197,12 +192,7 @@ cc_library {
     visibility: [
         // libft2 is needed by build/soong/cc here: https://source.corp.google.com/h/googleplex-android/platform/superproject/main/+/main:build/soong/cc/Android.bp;l=153;drc=beae6368054d4b56425cdf4705f10804617fdeaa
         "//build/soong/cc",
-        "//cts/hostsidetests/securitybulletin/securityPatch/CVE-2016-10244",
-        "//cts/hostsidetests/securitybulletin/securityPatch/CVE-2019-1988",
-        "//cts/hostsidetests/securitybulletin/securityPatch/CVE-2023-21261",
-        "//cts/hostsidetests/securitybulletin/securityPatch/CVE-2024-43091",
-        "//cts/hostsidetests/securitybulletin/securityPatch/CVE-2024-43097",
-        "//cts/hostsidetests/securitybulletin/securityPatch/CVE-2024-43767",
+        "//cts/hostsidetests/securitybulletin/securityPatch:__subpackages__",
         "//device/google/cuttlefish/host/frontend/webrtc",
         "//device/google/cuttlefish/host/libs/confui",
         "//device/google/cuttlefish/host/libs/screen_connector",
